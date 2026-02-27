@@ -13,10 +13,10 @@ var configs = map[string]Config{
 	},
 	"test": {
 		BaseURL:    "https://mobl-test.chinaums.com/fapiao-api-test/",
-		MsgSrc:     "",
-		SignKey:    "",
-		MerchantID: "",
-		TerminalID: "",
+		MsgSrc:     "GUILIN_SWJ",
+		SignKey:    "e43cb05eafba4c74821d736d161812b1",
+		MerchantID: "898000000000122",
+		TerminalID: "00000102",
 		Timeout:    30 * time.Second,
 	},
 }

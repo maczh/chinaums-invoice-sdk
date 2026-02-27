@@ -81,6 +81,8 @@ func SendRequest[R any, T any](req R, resp *T) error {
 	reqMap["msgId"] = uuid.NewString()
 	reqMap["msgSrc"] = client.config.MsgSrc
 	reqMap["requestTimestamp"] = time.Now().Format("2006-01-02 15:04:05")
+	reqMap["merchantId"] = client.config.MerchantID
+	reqMap["terminalId"] = client.config.TerminalID
 
 	// 生成签名
 	reqMap["sign"] = util.Sign(reqMap, client.config.SignKey)
