@@ -219,55 +219,15 @@ func isZeroValue(v reflect.Value) bool {
 // StructToMap 将结构体转为Map（保持字段顺序）
 // 用于签名时的参数拼接
 func StructToMap(v interface{}) (map[string]interface{}, error) {
-	if v == nil {
-		return nil, errors.New("input is nil")
+	jsonStr := ToJsonString(v)
+	if jsonStr == "" {
+		return nil, errors.New("marshal struct to json string error")
 	}
-
-	val := reflect.ValueOf(v)
-	for val.Kind() == reflect.Ptr {
-		if val.IsNil() {
-			return nil, errors.New("input is nil pointer")
-		}
-		val = val.Elem()
+	var result map[string]interface{}
+	err := json.Unmarshal([]byte(jsonStr), &result)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshal json string to map error: %w", err)
 	}
-
-	if val.Kind() != reflect.Struct {
-		return nil, fmt.Errorf("expected struct, got %s", val.Kind())
-	}
-
-	result := make(map[string]interface{})
-	typ := val.Type()
-
-	for i := 0; i < val.NumField(); i++ {
-		field := typ.Field(i)
-		fieldVal := val.Field(i)
-
-		// 跳过未导出字段
-		if field.PkgPath != "" {
-			continue
-		}
-
-		// 解析JSON tag
-		jsonTag := field.Tag.Get("json")
-		if jsonTag == "-" {
-			continue
-		}
-
-		tagParts := strings.Split(jsonTag, ",")
-		fieldName := tagParts[0]
-		if fieldName == "" {
-			fieldName = field.Name
-		}
-
-		// 处理omitempty
-		if len(tagParts) > 1 && tagParts[1] == "omitempty" && isZeroValue(fieldVal) {
-			continue
-		}
-
-		// 将字段值存入Map
-		result[fieldName] = fieldVal.Interface()
-	}
-
 	return result, nil
 }
 

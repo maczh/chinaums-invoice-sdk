@@ -1,19 +1,21 @@
 package client
 
 import (
+	"encoding/json"
 	"errors"
+	"net/http"
+	"os"
 	"time"
 
-	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
+	"github.com/levigross/grequests"
 	"github.com/maczh/chinaums-invoice-sdk/util"
 	"github.com/sirupsen/logrus"
 )
 
 // Client 银联商务发票服务客户端
 type Client struct {
-	restyClient *resty.Client
-	config      *Config
+	config *Config
 }
 
 var logger = logrus.New()
@@ -32,7 +34,7 @@ type Config struct {
 }
 
 // NewClient 创建客户端
-func NewClient(env string, opts ...Option) (*Client, error) {
+func NewClient(env string) (*Client, error) {
 	if env == "" {
 		env = "prod"
 	}
@@ -51,18 +53,11 @@ func NewClient(env string, opts ...Option) (*Client, error) {
 		return client, nil
 	}
 
-	client := &Client{
+	client = &Client{
 		config: &config,
-		restyClient: resty.New().
-			SetBaseURL(config.BaseURL).
-			SetTimeout(config.Timeout).
-			SetHeader("Content-Type", "application/json;charset=UTF-8"),
 	}
-
-	// 应用选项
-	for _, opt := range opts {
-		opt(client)
-	}
+	logger.SetOutput(os.Stdout)        // 设置日志输出到标准输出
+	logger.SetLevel(logrus.DebugLevel) // 设置日志级别为Debug
 
 	return client, nil
 }
@@ -91,25 +86,32 @@ func SendRequest[R any, T any](req R, resp *T) error {
 	logger.Debugf("Request: %s", util.ToJsonString(reqMap))
 
 	// 发送请求
-	_, err = client.restyClient.R().
-		SetBody(reqMap).
-		SetResult(resp).
-		Post(client.restyClient.BaseURL)
+	res, err := grequests.DoRegularRequest(http.MethodPost, client.config.BaseURL, &grequests.RequestOptions{
+		JSON: reqMap,
+	})
 	if err != nil {
 		return err
 	}
 
 	// 输出响应日志
-	logger.Debugf("Response: %s", util.ToJsonString(resp))
+	logger.Debugf("Response: %s", res.String())
 
 	// 校验响应签名
-	respMap, _ := util.StructToMap(resp)
-	sign := respMap["sign"].(string)
-	delete(respMap, "sign")
-	if util.Sign(respMap, client.config.SignKey) != sign {
-		return errors.New("response sign verify failed")
+	// respMap, _ := util.StructToMap(resp)
+	// sign := respMap["sign"].(string)
+	// delete(respMap, "sign")
+	// if util.Sign(respMap, client.config.SignKey) != sign {
+	// 	return errors.New("response sign verify failed")
+	// }
+	err = json.Unmarshal(res.Bytes(), resp)
+	if err != nil {
+		return err
 	}
-
+	var respMap map[string]interface{}
+	err = json.Unmarshal(res.Bytes(), &respMap)
+	if err != nil {
+		return err
+	}
 	// 检查响应状态
 	if respMap["resultCode"].(string) != "SUCCESS" {
 		return errors.New(respMap["resultMsg"].(string))
