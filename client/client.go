@@ -34,7 +34,13 @@ type Config struct {
 }
 
 // NewClient 创建客户端
-func NewClient(env string) (*Client, error) {
+func NewClient(env string, cnf ...Config) (*Client, error) {
+	if len(cnf) > 0 {
+		client = &Client{
+			config: &cnf[0],
+		}
+		return client, nil
+	}
 	if env == "" {
 		env = "prod"
 	}
@@ -76,8 +82,12 @@ func SendRequest[R any, T any](req R, resp *T) error {
 	reqMap["msgId"] = uuid.NewString()
 	reqMap["msgSrc"] = client.config.MsgSrc
 	reqMap["requestTimestamp"] = time.Now().Format("2006-01-02 15:04:05")
-	reqMap["merchantId"] = client.config.MerchantID
-	reqMap["terminalId"] = client.config.TerminalID
+	if reqMap["merchantId"] == nil {
+		reqMap["merchantId"] = client.config.MerchantID
+	}
+	if reqMap["terminalId"] == nil {
+		reqMap["terminalId"] = client.config.TerminalID
+	}
 
 	// 生成签名
 	reqMap["sign"] = util.Sign(reqMap, client.config.SignKey)
