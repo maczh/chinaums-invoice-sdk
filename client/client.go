@@ -82,10 +82,10 @@ func SendRequest[R any, T any](req R, resp *T) error {
 	reqMap["msgId"] = uuid.NewString()
 	reqMap["msgSrc"] = client.config.MsgSrc
 	reqMap["requestTimestamp"] = time.Now().Format("2006-01-02 15:04:05")
-	if reqMap["merchantId"] == nil {
+	if reqMap["merchantId"] == nil || reqMap["merchantId"] == "" {
 		reqMap["merchantId"] = client.config.MerchantID
 	}
-	if reqMap["terminalId"] == nil {
+	if reqMap["terminalId"] == nil || reqMap["terminalId"] == "" {
 		reqMap["terminalId"] = client.config.TerminalID
 	}
 
