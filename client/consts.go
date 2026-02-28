@@ -18,7 +18,7 @@ var configs = map[string]Config{
 		MerchantID:     "898000000000122",
 		TerminalID:     "00000102",
 		Timeout:        30 * time.Second,
-		MongoURL:       "mongodb://jihai:Voodoo#123456@127.0.0.1:27017/jihai",
+		MongoURL:       "mongodb://ququmandev:rXie4kYIrGb#@dds-bp1cbd6ebff4b8441789-pub.mongodb.rds.aliyuncs.com:3717,dds-bp1cbd6ebff4b8442273-pub.mongodb.rds.aliyuncs.com:3717/dev",
 		CollectionName: "UmsInvoicePostLog",
 	},
 }
