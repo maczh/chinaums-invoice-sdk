@@ -11,9 +11,9 @@ import (
 
 func TestQueryStatus(t *testing.T) {
 	client.NewClient("test")
-	req := model.QueryInvoiceStatusRequest{	
-		MerOrderDate:    "20260227",
-		MerOrderID:      "JHP20260227152305001",
+	req := model.QueryInvoiceStatusRequest{
+		MerOrderDate: "20260227",
+		MerOrderID:   "JHP20260227152305001",
 	}
 	resp, err := api.QueryInvoiceStatus(req)
 	if err != nil {
@@ -22,7 +22,6 @@ func TestQueryStatus(t *testing.T) {
 	}
 	t.Log(util.ToJsonString(resp))
 }
-
 
 func TestAsyncIssue(t *testing.T) {
 	client.NewClient("test")
@@ -56,8 +55,8 @@ func TestQRCode(t *testing.T) {
 		InvoiceType:     api.InvoiceTypePlain,          // 专用发票
 		MerOrderDate:    "20260227",
 		MerOrderId:      "JHP20260227152305002",
-		NotifyUrl: "https://baidu.com",
-		Amount: 13850,
+		NotifyUrl:       "https://baidu.com",
+		Amount:          13850,
 		GoodsDetail:     "[{\"index\":\"1\",\"attribute\":\"0\",\"discountIndex\":\"\",\"name\":\"餐 饮 服 务\",\"sn\":\"3070401000000000000\",\"taxRate\":\"6\",\"priceIncludingTax\":\"138.50\",\"quantity\":\"1\",\"unit\":\"\",\"model\":\"\"}]",
 	}
 	resp, err := api.GenerateQRCode(req)
@@ -74,6 +73,20 @@ func TestFuzzyQueryInvoiceTitle(t *testing.T) {
 		Name: "寄海",
 	}
 	resp, err := api.FuzzyQueryInvoiceTitle(req)
+	if err != nil {
+		t.Error(err.Error())
+		return
+	}
+	t.Log(util.ToJsonString(resp))
+}
+
+func TestRedReverseInvoice(t *testing.T) {
+	client.NewClient("test")
+	req := model.RedReverseInvoiceRequest{
+		MerOrderDate: "20260302",
+		MerOrderID:   "3eb07413-416c-4be5-bca9-c9fe29d7663a-776dzq",
+	}
+	resp, err := api.RedReverseInvoice(req)
 	if err != nil {
 		t.Error(err.Error())
 		return

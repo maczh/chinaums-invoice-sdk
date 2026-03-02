@@ -101,7 +101,7 @@ func SendRequest[R any, T any](req R, resp *T) error {
 		return err
 	}
 	// 填充公共请求参数
-	reqMap["msgId"] = uuid.NewString()
+	reqMap["msgId"] = strings.ReplaceAll(uuid.NewString(), "-", "")
 	reqMap["msgSrc"] = client.config.MsgSrc
 	reqMap["requestTimestamp"] = time.Now().Format("2006-01-02 15:04:05")
 	if reqMap["merchantId"] == nil || reqMap["merchantId"] == "" {

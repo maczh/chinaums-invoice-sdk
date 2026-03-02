@@ -5,7 +5,7 @@ type BaseRequest struct {
 	MsgID            string `json:"msgId"`		// 消息ID（唯一）
 	MsgSrc           string `json:"msgSrc"`
 	MsgType          string `json:"msgType"`	//业务类型
-	RequestTimestamp string `json:"requestTimestamp"`	// 请求时间戳（yyyy-MM-dd HH:mm:ss）
+	RequestTimestamp any `json:"requestTimestamp"`	// 请求时间戳（yyyy-MM-dd HH:mm:ss）
 	SrcReserve       string `json:"srcReserve,omitempty"`
 }
 
